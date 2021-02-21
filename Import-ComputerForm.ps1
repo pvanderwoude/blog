@@ -3,7 +3,7 @@
 # Date: 2-5-2013 (Updated: 9-10-2013)
 # By: Peter van der Woude
 # Version: 0.9 Public
-# Usage: PowerShell.exe -ExecutionPolicy ByPass .\ImportComputerForm.ps1 -Container <Container> -Collection <Collection> -SiteCode <SiteCode> -SiteServer <SiteServer>
+# Usage: PowerShell.exe -ExecutionPolicy ByPass .\Import-ComputerForm.ps1 -Container <Container> -Collection <Collection> -SiteCode <SiteCode> -SiteServer <SiteServer>
 ################################################################################################################################################
 [CmdletBinding()]
 
