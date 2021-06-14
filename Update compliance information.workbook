@@ -1,0 +1,854 @@
+{
+  "version": "Notebook/1.0",
+  "items": [
+    {
+      "type": 9,
+      "content": {
+        "version": "KqlParameterItem/1.0",
+        "parameters": [
+          {
+            "id": "9698fb8b-a973-4286-85de-4a026db1d26e",
+            "version": "KqlParameterItem/1.0",
+            "name": "LatestSecurityUpdatesReleasedDate",
+            "label": "Release date of the latest security update",
+            "type": 1,
+            "query": "WaaSDeploymentStatus\r\n| where UpdateClassification == \"Security\"\r\n| summarize max(UpdateReleasedDate)",
+            "isHiddenWhenLocked": true,
+            "queryType": 0,
+            "resourceType": "microsoft.operationalinsights/workspaces"
+          },
+          {
+            "id": "0b732fa5-265b-4389-9bdb-806a39d25f63",
+            "version": "KqlParameterItem/1.0",
+            "name": "LatestSecurityUpdates",
+            "label": "Latest security update",
+            "type": 1,
+            "query": "WaaSDeploymentStatus\r\n| where UpdateClassification == \"Security\" and UpdateReleasedDate == \"{LatestSecurityUpdatesReleasedDate}\"\r\n| summarize arg_max(TimeGenerated, *) by ReleaseName\r\n| sort by ReleaseName asc\r\n| summarize LatestSecurityUpdatesList = make_list(ReleaseName)\r\n| project LatestSecurityUpdatesList",
+            "isHiddenWhenLocked": true,
+            "queryType": 0,
+            "resourceType": "microsoft.operationalinsights/workspaces"
+          },
+          {
+            "id": "ef0346b0-0a83-4141-9097-50c98549a185",
+            "version": "KqlParameterItem/1.0",
+            "name": "ReadableLatestSecurityUpdatesReleasedDate",
+            "label": "Readable release day of the latest security update",
+            "type": 1,
+            "query": "let months = dynamic({\"1\":\"January\",\"2\":\"February\",\"3\":\"March\",\"4\":\"April\",\"5\":\"May\",\"6\":\"June\",\"7\":\"July\",\"8\":\"August\",\"9\":\"Sepetember\",\"10\":\"October\",\"11\":\"November\",\"12\":\"December\"}); \r\nlet latestdate = datetime({LatestSecurityUpdatesReleasedDate});\r\nprint strcat(months[tostring(monthofyear(latestdate))],\" \",dayofmonth(latestdate),\", \",getyear(latestdate))",
+            "isHiddenWhenLocked": true,
+            "queryType": 0,
+            "resourceType": "microsoft.operationalinsights/workspaces"
+          },
+          {
+            "id": "acd54f04-143a-4c01-ace0-a0b0f6b53d70",
+            "version": "KqlParameterItem/1.0",
+            "name": "LatestFeatureUpdateReleasedDate",
+            "label": "Release date of the latest feature update",
+            "type": 1,
+            "query": "WaaSDeploymentStatus\r\n| where UpdateClassification == \"Upgrade\"\r\n| summarize max(UpdateReleasedDate)",
+            "isHiddenWhenLocked": true,
+            "queryType": 0,
+            "resourceType": "microsoft.operationalinsights/workspaces"
+          },
+          {
+            "id": "aba86b07-302d-4a0c-ad16-aa28a81c940e",
+            "version": "KqlParameterItem/1.0",
+            "name": "LatestFeatureUpdate",
+            "label": "Latest feature update",
+            "type": 1,
+            "query": "WaaSDeploymentStatus\r\n| where UpdateClassification == \"Upgrade\" and UpdateReleasedDate == \"{LatestFeatureUpdateReleasedDate}\"\r\n| summarize arg_max(TimeGenerated, *) by ReleaseName\r\n| project ReleaseName",
+            "isHiddenWhenLocked": true,
+            "queryType": 0,
+            "resourceType": "microsoft.operationalinsights/workspaces"
+          },
+          {
+            "id": "eb92f863-e39b-4891-9da2-f29c181058f8",
+            "version": "KqlParameterItem/1.0",
+            "name": "ReadableLatestFeatureUpdateReleasedDate",
+            "label": "Readable release day of the latest feature update",
+            "type": 1,
+            "query": "let months = dynamic({\"1\":\"January\",\"2\":\"February\",\"3\":\"March\",\"4\":\"April\",\"5\":\"May\",\"6\":\"June\",\"7\":\"July\",\"8\":\"August\",\"9\":\"Sepetember\",\"10\":\"October\",\"11\":\"November\",\"12\":\"December\"}); \r\nlet latestdate = datetime({LatestFeatureUpdateReleasedDate});\r\nprint strcat(months[tostring(monthofyear(latestdate))],\" \",dayofmonth(latestdate),\", \",getyear(latestdate))",
+            "isHiddenWhenLocked": true,
+            "queryType": 0,
+            "resourceType": "microsoft.operationalinsights/workspaces"
+          }
+        ],
+        "style": "above",
+        "queryType": 0,
+        "resourceType": "microsoft.operationalinsights/workspaces"
+      },
+      "name": "parameters - 8"
+    },
+    {
+      "type": 1,
+      "content": {
+        "json": "## Update compliance information reporting\r\n---\r\n\r\nThis workbook provides a quick overview of the different Windows builds and versions within the organization, including the latest update status.  \r\n**Important**: The information about the latest update status is not available for Windows Insider Preview builds "
+      },
+      "name": "text - 10"
+    },
+    {
+      "type": 3,
+      "content": {
+        "version": "KqlItem/1.0",
+        "query": "WaaSUpdateStatus\n| union WaaSInsiderStatus\n| summarize arg_max(TimeGenerated, *) by ComputerID \n| summarize dcount(ComputerID) by OSVersion\n| render piechart",
+        "size": 3,
+        "title": "Number of devices per version",
+        "showRefreshButton": true,
+        "showExportToExcel": true,
+        "queryType": 0,
+        "resourceType": "microsoft.operationalinsights/workspaces"
+      },
+      "customWidth": "50",
+      "showPin": true,
+      "name": "query - 2",
+      "styleSettings": {
+        "showBorder": true
+      }
+    },
+    {
+      "type": 3,
+      "content": {
+        "version": "KqlItem/1.0",
+        "query": "WaaSUpdateStatus\r\n| union WaaSInsiderStatus\r\n| summarize arg_max(TimeGenerated, *) by ComputerID \r\n| summarize dcount(ComputerID) by OSBuild\r\n| render piechart",
+        "size": 3,
+        "title": "Number of devices per build",
+        "showRefreshButton": true,
+        "showExportToExcel": true,
+        "queryType": 0,
+        "resourceType": "microsoft.operationalinsights/workspaces"
+      },
+      "customWidth": "50",
+      "showPin": true,
+      "name": "query - 2",
+      "styleSettings": {
+        "showBorder": true
+      }
+    },
+    {
+      "type": 1,
+      "content": {
+        "json": "---"
+      },
+      "name": "text - 10 - Copy"
+    },
+    {
+      "type": 1,
+      "content": {
+        "json": "**Latest available Windows 10 feature update:**  \r\n{LatestFeatureUpdate}  \r\n**Release date:** {ReadableLatestFeatureUpdateReleasedDate}  ",
+        "style": "info"
+      },
+      "customWidth": "50",
+      "showPin": true,
+      "name": "text - 9",
+      "styleSettings": {
+        "showBorder": true
+      }
+    },
+    {
+      "type": 1,
+      "content": {
+        "json": "**Latest available Windows 10 security updates list:**  \r\n{LatestSecurityUpdates}  \r\n**Release date:** {ReadableLatestSecurityUpdatesReleasedDate}  ",
+        "style": "info"
+      },
+      "customWidth": "50",
+      "showPin": true,
+      "name": "text - 9",
+      "styleSettings": {
+        "showBorder": true
+      }
+    },
+    {
+      "type": 3,
+      "content": {
+        "version": "KqlItem/1.0",
+        "query": "WaaSUpdateStatus\r\n| summarize arg_max(TimeGenerated, *) by ComputerID\r\n| summarize dcount(ComputerID) by OSFeatureUpdateStatus\r\n| render piechart",
+        "size": 3,
+        "title": "Latest feature update status",
+        "showRefreshButton": true,
+        "showExportToExcel": true,
+        "queryType": 0,
+        "resourceType": "microsoft.operationalinsights/workspaces",
+        "chartSettings": {
+          "seriesLabelSettings": [
+            {
+              "seriesName": "Not Up-to-date",
+              "color": "yellow"
+            },
+            {
+              "seriesName": "Up-to-date",
+              "color": "green"
+            },
+            {
+              "seriesName": "Out of support",
+              "color": "red"
+            }
+          ]
+        }
+      },
+      "customWidth": "50",
+      "showPin": true,
+      "name": "query - 3",
+      "styleSettings": {
+        "showBorder": true
+      }
+    },
+    {
+      "type": 3,
+      "content": {
+        "version": "KqlItem/1.0",
+        "query": "WaaSUpdateStatus\r\n| summarize arg_max(TimeGenerated, *) by ComputerID\r\n| summarize dcount(ComputerID) by OSSecurityUpdateStatus\r\n| render piechart",
+        "size": 3,
+        "title": "Latest security update status",
+        "showRefreshButton": true,
+        "showExportToExcel": true,
+        "queryType": 0,
+        "resourceType": "microsoft.operationalinsights/workspaces",
+        "gridSettings": {
+          "formatters": [
+            {
+              "columnMatch": "dcount_ComputerID",
+              "formatter": 22,
+              "formatOptions": {
+                "compositeBarSettings": {
+                  "labelText": "",
+                  "columnSettings": [
+                    {
+                      "columnName": "OSSecurityUpdateStatus",
+                      "color": "blue"
+                    }
+                  ]
+                }
+              }
+            }
+          ]
+        },
+        "chartSettings": {
+          "seriesLabelSettings": [
+            {
+              "seriesName": "Up-to-date",
+              "color": "green"
+            },
+            {
+              "seriesName": "Not Up-to-date",
+              "color": "red"
+            },
+            {
+              "seriesName": "In deferral period",
+              "color": "yellow"
+            }
+          ],
+          "ySettings": {
+            "numberFormatSettings": {
+              "unit": 0,
+              "options": {
+                "style": "decimal",
+                "useGrouping": true
+              }
+            }
+          }
+        }
+      },
+      "customWidth": "50",
+      "showPin": true,
+      "name": "query - 5",
+      "styleSettings": {
+        "showBorder": true
+      }
+    },
+    {
+      "type": 3,
+      "content": {
+        "version": "KqlItem/1.0",
+        "query": "WaaSUpdateStatus\r\n| summarize arg_max(TimeGenerated, *) by ComputerID\r\n| summarize Devices = count(ComputerID) by OSVersion, OSServicingBranch, OSFeatureUpdateStatus\r\n| order by OSVersion asc, OSServicingBranch, OSFeatureUpdateStatus\r\n| project Branch=OSServicingBranch, Version=OSVersion, Status=OSFeatureUpdateStatus, Devices",
+        "size": 3,
+        "title": "Latest feature update information per version",
+        "showRefreshButton": true,
+        "exportedParameters": [
+          {
+            "fieldName": "Version",
+            "parameterName": "Version1",
+            "parameterType": 5
+          },
+          {
+            "fieldName": "Status",
+            "parameterName": "Status1",
+            "parameterType": 5
+          },
+          {
+            "fieldName": "Branch",
+            "parameterName": "Branch1",
+            "parameterType": 5
+          }
+        ],
+        "showExportToExcel": true,
+        "queryType": 0,
+        "resourceType": "microsoft.operationalinsights/workspaces",
+        "gridSettings": {
+          "formatters": [
+            {
+              "columnMatch": "Status",
+              "formatter": 18,
+              "formatOptions": {
+                "thresholdsOptions": "icons",
+                "thresholdsGrid": [
+                  {
+                    "operator": "startsWith",
+                    "thresholdValue": "Not",
+                    "representation": "2",
+                    "text": "{0}{1}"
+                  },
+                  {
+                    "operator": "startsWith",
+                    "thresholdValue": "Up",
+                    "representation": "success",
+                    "text": "{0}{1}"
+                  },
+                  {
+                    "operator": "startsWith",
+                    "thresholdValue": "Out",
+                    "representation": "4",
+                    "text": "{0}{1}"
+                  },
+                  {
+                    "operator": "Default",
+                    "thresholdValue": null,
+                    "representation": "success",
+                    "text": "{0}{1}"
+                  }
+                ]
+              }
+            },
+            {
+              "columnMatch": "Devices",
+              "formatter": 3,
+              "formatOptions": {
+                "min": 0,
+                "palette": "blue",
+                "compositeBarSettings": {
+                  "labelText": "",
+                  "columnSettings": [
+                    {
+                      "columnName": "Version",
+                      "color": "green"
+                    }
+                  ]
+                }
+              }
+            }
+          ],
+          "labelSettings": [
+            {
+              "columnId": "Branch"
+            },
+            {
+              "columnId": "Version"
+            },
+            {
+              "columnId": "Status"
+            },
+            {
+              "columnId": "Devices",
+              "label": "Number of devices"
+            }
+          ]
+        },
+        "sortBy": []
+      },
+      "customWidth": "50",
+      "showPin": true,
+      "name": "query - 4",
+      "styleSettings": {
+        "showBorder": true
+      }
+    },
+    {
+      "type": 3,
+      "content": {
+        "version": "KqlItem/1.0",
+        "query": "WaaSUpdateStatus\r\n| summarize arg_max(TimeGenerated, *) by ComputerID\r\n| summarize Devices = count(ComputerID) by OSVersion, OSServicingBranch, OSSecurityUpdateStatus\r\n| order by OSVersion asc, OSServicingBranch, OSSecurityUpdateStatus\r\n| project Branch=OSServicingBranch, Version=OSVersion, Status=OSSecurityUpdateStatus, Devices",
+        "size": 3,
+        "title": "Latest security update information per version",
+        "showRefreshButton": true,
+        "exportedParameters": [
+          {
+            "fieldName": "Version",
+            "parameterName": "Version2",
+            "parameterType": 1
+          },
+          {
+            "fieldName": "Status",
+            "parameterName": "Status2",
+            "parameterType": 1
+          },
+          {
+            "fieldName": "Branch",
+            "parameterName": "Branch2",
+            "parameterType": 5
+          }
+        ],
+        "showExportToExcel": true,
+        "queryType": 0,
+        "resourceType": "microsoft.operationalinsights/workspaces",
+        "gridSettings": {
+          "formatters": [
+            {
+              "columnMatch": "Status",
+              "formatter": 18,
+              "formatOptions": {
+                "thresholdsOptions": "icons",
+                "thresholdsGrid": [
+                  {
+                    "operator": "startsWith",
+                    "thresholdValue": "Up",
+                    "representation": "success",
+                    "text": "{0}{1}"
+                  },
+                  {
+                    "operator": "startsWith",
+                    "thresholdValue": "Not",
+                    "representation": "4",
+                    "text": "{0}{1}"
+                  },
+                  {
+                    "operator": "Default",
+                    "thresholdValue": null,
+                    "representation": null,
+                    "text": "{0}{1}"
+                  }
+                ]
+              }
+            },
+            {
+              "columnMatch": "Devices",
+              "formatter": 3,
+              "formatOptions": {
+                "min": 0,
+                "palette": "blue"
+              }
+            }
+          ],
+          "sortBy": [
+            {
+              "itemKey": "Version",
+              "sortOrder": 1
+            }
+          ],
+          "labelSettings": [
+            {
+              "columnId": "Branch"
+            },
+            {
+              "columnId": "Version"
+            },
+            {
+              "columnId": "Status"
+            },
+            {
+              "columnId": "Devices",
+              "label": "Number of devices"
+            }
+          ]
+        },
+        "sortBy": [
+          {
+            "itemKey": "Version",
+            "sortOrder": 1
+          }
+        ]
+      },
+      "customWidth": "50",
+      "showPin": true,
+      "name": "query - 6",
+      "styleSettings": {
+        "showBorder": true
+      }
+    },
+    {
+      "type": 3,
+      "content": {
+        "version": "KqlItem/1.0",
+        "query": "WaaSUpdateStatus\r\n| summarize arg_max(TimeGenerated, *) by ComputerID\r\n| where OSServicingBranch == '{Branch1}' and OSVersion == '{Version1}' and OSFeatureUpdateStatus == '{Status1}'\r\n| order by Computer asc\r\n| project Device=Computer, Branch=OSServicingBranch, Version=OSVersion, Build=OSBuild, Revision=OSRevisionNumber, Architecture=OSArchitecture, Edition=OSEdition, Deferral=iif(FeatureDeferralDays < 0, \"Not set\", strcat(FeatureDeferralDays,\" days\")), Pause=FeaturePauseState, Scan=LastScan, TimeGenerated",
+        "size": 3,
+        "title": "Device information for the selected Windows version ({Version1}) and status ({Status1})",
+        "showRefreshButton": true,
+        "showExportToExcel": true,
+        "queryType": 0,
+        "resourceType": "microsoft.operationalinsights/workspaces",
+        "gridSettings": {
+          "formatters": [
+            {
+              "columnMatch": "Device",
+              "formatter": 1,
+              "formatOptions": {
+                "linkColumn": "Device",
+                "linkTarget": "GenericDetails",
+                "linkIsContextBlade": true
+              }
+            },
+            {
+              "columnMatch": "Version",
+              "formatter": 5
+            },
+            {
+              "columnMatch": "Revision",
+              "formatter": 5
+            },
+            {
+              "columnMatch": "Architecture",
+              "formatter": 5
+            },
+            {
+              "columnMatch": "Edition",
+              "formatter": 5
+            },
+            {
+              "columnMatch": "Pause",
+              "formatter": 5
+            },
+            {
+              "columnMatch": "TimeGenerated",
+              "formatter": 5
+            }
+          ],
+          "labelSettings": [
+            {
+              "columnId": "Device"
+            },
+            {
+              "columnId": "Branch"
+            },
+            {
+              "columnId": "Version"
+            },
+            {
+              "columnId": "Build"
+            },
+            {
+              "columnId": "Revision"
+            },
+            {
+              "columnId": "Architecture"
+            },
+            {
+              "columnId": "Edition"
+            },
+            {
+              "columnId": "Deferral"
+            },
+            {
+              "columnId": "Pause"
+            },
+            {
+              "columnId": "Scan",
+              "label": "Latest scan date"
+            },
+            {
+              "columnId": "TimeGenerated"
+            }
+          ]
+        }
+      },
+      "conditionalVisibility": {
+        "parameterName": "Version1",
+        "comparison": "isNotEqualTo"
+      },
+      "customWidth": "50",
+      "name": "query - 11",
+      "styleSettings": {
+        "showBorder": true
+      }
+    },
+    {
+      "type": 3,
+      "content": {
+        "version": "KqlItem/1.0",
+        "query": "WaaSUpdateStatus\r\n| summarize arg_max(TimeGenerated, *) by ComputerID\r\n| where OSServicingBranch == '{Branch2}' and OSVersion == '{Version2}' and OSSecurityUpdateStatus == '{Status2}'\r\n| order by Computer asc\r\n| project Device=Computer, Branch=OSServicingBranch, Version=OSVersion, Build=OSBuild, Revision=OSRevisionNumber, Architecture=OSArchitecture, Edition=OSEdition, Deferral=iif(QualityDeferralDays < 0, \"Not set\", strcat(QualityDeferralDays,\" days\")), Pause=QualityPauseState, Scan=LastScan, TimeGenerated",
+        "size": 3,
+        "title": "Device information for the selected Windows version ({Version2}) and status ({Status2})",
+        "showRefreshButton": true,
+        "showExportToExcel": true,
+        "queryType": 0,
+        "resourceType": "microsoft.operationalinsights/workspaces",
+        "gridSettings": {
+          "formatters": [
+            {
+              "columnMatch": "Device",
+              "formatter": 1,
+              "formatOptions": {
+                "linkColumn": "Device",
+                "linkTarget": "GenericDetails",
+                "linkIsContextBlade": true
+              }
+            },
+            {
+              "columnMatch": "Version",
+              "formatter": 5
+            },
+            {
+              "columnMatch": "Revision",
+              "formatter": 5
+            },
+            {
+              "columnMatch": "Architecture",
+              "formatter": 5
+            },
+            {
+              "columnMatch": "Edition",
+              "formatter": 5
+            },
+            {
+              "columnMatch": "Pause",
+              "formatter": 5
+            },
+            {
+              "columnMatch": "TimeGenerated",
+              "formatter": 5
+            }
+          ],
+          "labelSettings": [
+            {
+              "columnId": "Device"
+            },
+            {
+              "columnId": "Branch"
+            },
+            {
+              "columnId": "Version"
+            },
+            {
+              "columnId": "Build"
+            },
+            {
+              "columnId": "Revision"
+            },
+            {
+              "columnId": "Architecture"
+            },
+            {
+              "columnId": "Edition"
+            },
+            {
+              "columnId": "Deferral"
+            },
+            {
+              "columnId": "Pause"
+            },
+            {
+              "columnId": "Scan",
+              "label": "Latest update scan"
+            },
+            {
+              "columnId": "TimeGenerated"
+            }
+          ]
+        }
+      },
+      "conditionalVisibility": {
+        "parameterName": "Version2",
+        "comparison": "isNotEqualTo"
+      },
+      "customWidth": "50",
+      "name": "query - 12",
+      "styleSettings": {
+        "showBorder": true
+      }
+    },
+    {
+      "type": 1,
+      "content": {
+        "json": "---"
+      },
+      "name": "text - 14"
+    },
+    {
+      "type": 3,
+      "content": {
+        "version": "KqlItem/1.0",
+        "query": "let SecurityUpdates = dynamic({LatestSecurityUpdates});\r\nWaaSDeploymentStatus\r\n| where ReleaseName in (SecurityUpdates)\r\n| summarize arg_max(TimeGenerated, *) by ComputerID, ReleaseName\r\n| order by Computer asc\r\n| project Device=Computer, Branch=OSServicingBranch, Version=OSVersion, Build=OSBuild, Release=ReleaseName, Deferral=iif(DeferralDays < 0, \"Not set\", strcat(DeferralDays,\" days\")), DeploymentStatus, DeploymentError, DeploymentErrorCode, DetailedStatus, DetailedStatusLevel, PauseState, RecommendedAction, LastScan, TimeGenerated",
+        "size": 3,
+        "title": "Deployment status information of the latest available security updates ({LatestSecurityUpdates}) per device",
+        "showRefreshButton": true,
+        "showExportToExcel": true,
+        "queryType": 0,
+        "resourceType": "microsoft.operationalinsights/workspaces",
+        "gridSettings": {
+          "formatters": [
+            {
+              "columnMatch": "Build",
+              "formatter": 5
+            },
+            {
+              "columnMatch": "DeploymentStatus",
+              "formatter": 18,
+              "formatOptions": {
+                "linkColumn": "Device",
+                "linkTarget": "GenericDetails",
+                "linkIsContextBlade": true,
+                "thresholdsOptions": "icons",
+                "thresholdsGrid": [
+                  {
+                    "operator": "==",
+                    "thresholdValue": "Update completed",
+                    "representation": "success",
+                    "text": "{0}{1}"
+                  },
+                  {
+                    "operator": "==",
+                    "thresholdValue": "In Progress",
+                    "representation": "pending",
+                    "text": "{0}{1}"
+                  },
+                  {
+                    "operator": "==",
+                    "thresholdValue": "Deferred",
+                    "representation": "1",
+                    "text": "{0}{1}"
+                  },
+                  {
+                    "operator": "==",
+                    "thresholdValue": "Canceled",
+                    "representation": "cancelled",
+                    "text": "{0}{1}"
+                  },
+                  {
+                    "operator": "==",
+                    "thresholdValue": "Blocked",
+                    "representation": "2",
+                    "text": "{0}{1}"
+                  },
+                  {
+                    "operator": "==",
+                    "thresholdValue": "Unknown",
+                    "representation": "unknown",
+                    "text": "{0}{1}"
+                  },
+                  {
+                    "operator": "==",
+                    "thresholdValue": "Update paused",
+                    "representation": "stopped",
+                    "text": "{0}{1}"
+                  },
+                  {
+                    "operator": "==",
+                    "thresholdValue": "Failed",
+                    "representation": "failed",
+                    "text": "{0}{1}"
+                  },
+                  {
+                    "operator": "Default",
+                    "thresholdValue": null,
+                    "representation": "Blank",
+                    "text": "{0}{1}"
+                  }
+                ],
+                "bladeOpenContext": {
+                  "bladeParameters": []
+                }
+              }
+            },
+            {
+              "columnMatch": "DeploymentError",
+              "formatter": 5
+            },
+            {
+              "columnMatch": "DeploymentErrorCode",
+              "formatter": 5
+            },
+            {
+              "columnMatch": "DetailedStatus",
+              "formatter": 5
+            },
+            {
+              "columnMatch": "DetailedStatusLevel",
+              "formatter": 5
+            },
+            {
+              "columnMatch": "PauseState",
+              "formatter": 5
+            },
+            {
+              "columnMatch": "RecommendedAction",
+              "formatter": 5
+            },
+            {
+              "columnMatch": "TimeGenerated",
+              "formatter": 5
+            },
+            {
+              "columnMatch": "OSBuild",
+              "formatter": 5
+            },
+            {
+              "columnMatch": "OSServicingBranch",
+              "formatter": 5
+            },
+            {
+              "columnMatch": "DeferralDays",
+              "formatter": 5
+            }
+          ],
+          "labelSettings": [
+            {
+              "columnId": "Device"
+            },
+            {
+              "columnId": "Branch"
+            },
+            {
+              "columnId": "Version"
+            },
+            {
+              "columnId": "Build"
+            },
+            {
+              "columnId": "Release",
+              "label": "Latest security update"
+            },
+            {
+              "columnId": "DeploymentStatus",
+              "label": "Deployment status"
+            },
+            {
+              "columnId": "DeploymentError",
+              "label": "Error"
+            },
+            {
+              "columnId": "DeploymentErrorCode",
+              "label": "Error code"
+            },
+            {
+              "columnId": "DetailedStatus",
+              "label": "Detailed status"
+            },
+            {
+              "columnId": "DetailedStatusLevel",
+              "label": "Detailed status level"
+            },
+            {
+              "columnId": "PauseState",
+              "label": "Pause state"
+            },
+            {
+              "columnId": "RecommendedAction",
+              "label": "Recommended action"
+            },
+            {
+              "columnId": "LastScan",
+              "label": "Latest update scan"
+            },
+            {
+              "columnId": "TimeGenerated",
+              "label": "Entry generated"
+            }
+          ]
+        }
+      },
+      "showPin": true,
+      "name": "query - 8",
+      "styleSettings": {
+        "showBorder": true
+      }
+    }
+  ],
+  "$schema": "https://github.com/Microsoft/Application-Insights-Workbooks/blob/master/schema/workbook.json"
+}
