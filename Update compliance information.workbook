@@ -664,7 +664,7 @@
       "type": 3,
       "content": {
         "version": "KqlItem/1.0",
-        "query": "let SecurityUpdates = dynamic({LatestSecurityUpdates});\r\nWaaSDeploymentStatus\r\n| where ReleaseName in (SecurityUpdates)\r\n| summarize arg_max(TimeGenerated, *) by ComputerID, ReleaseName\r\n| order by Computer asc\r\n| project Device=Computer, Branch=OSServicingBranch, Version=OSVersion, Build=OSBuild, Release=ReleaseName, Deferral=iif(DeferralDays < 0, \"Not set\", strcat(DeferralDays,\" days\")), DeploymentStatus, DeploymentError, DeploymentErrorCode, DetailedStatus, DetailedStatusLevel, PauseState, RecommendedAction, LastScan, TimeGenerated",
+        "query": "let SecurityUpdates = dynamic({LatestSecurityUpdates});\r\nWaaSDeploymentStatus\r\n| where ReleaseName in (SecurityUpdates)\r\n| summarize arg_max(TimeGenerated, *) by ComputerID\r\n| order by Computer asc\r\n| project Device=Computer, Branch=OSServicingBranch, Version=OSVersion, Build=OSBuild, Release=ReleaseName, Deferral=iif(DeferralDays < 0, \"Not set\", strcat(DeferralDays,\" days\")), DeploymentStatus, DeploymentError, DeploymentErrorCode, DetailedStatus, DetailedStatusLevel, PauseState, RecommendedAction, LastScan, TimeGenerated",
         "size": 3,
         "title": "Deployment status information of the latest available security updates ({LatestSecurityUpdates}) per device",
         "showRefreshButton": true,
